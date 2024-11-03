@@ -14,8 +14,10 @@
                                   :I :type
                                   :V :alkohol})
                (drop 4)
-               (filter #(not= (:type %) "lahja- ja juomatarvikkeet"))
-               (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %)) (Double/parseDouble (:price-per-liter %)))))
+               (filter #(and (not= (:type %) "lahja- ja juomatarvikkeet")
+                             (not= (:type %) "alkoholittomat")))
+               (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %))
+                                      (Double/parseDouble (:price-per-liter %)))))
                (map (juxt :name :size :price :price-per-liter :type :alkohol :apk :id))))
 
 (defn generate-html []
