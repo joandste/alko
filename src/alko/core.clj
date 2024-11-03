@@ -22,8 +22,8 @@
                                       (Double/parseDouble (:price-per-liter %)))))
                (map (juxt :name :size :price :price-per-liter :type :alkohol :apk :id))))
 
-(defn generate-html []
-  (let [json-data (j/write-value-as-string data)
+(defn generate-html [input-data]
+  (let [json-data (j/write-value-as-string input-data)
         template (slurp "template.html")
         html-content (clojure.string/replace template "{{ data_placeholder }}" json-data)] 
     (with-open [writer (io/writer "index.html")]
@@ -36,5 +36,5 @@
 
 (comment
   (count data)
-  (generate-html)
+  (generate-html data)
   data)
