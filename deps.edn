@@ -1,0 +1,6 @@
+{:paths ["src" "resources"]
+ :deps {;; read excel
+        dk.ative/docjure {:mvn/version "1.19.0"}
+
+        ;; json
+        metosin/jsonista {:mvn/version "0.3.11"}}}
