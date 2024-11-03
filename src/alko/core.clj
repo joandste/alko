@@ -15,13 +15,14 @@
                                   :V :alkohol})
                (drop 4)
                (filter #(not= (get % :type) "lahja- ja juomatarvikkeet"))
-               (map (juxt :id :name :size :price :price-per-liter :type :alkohol))))
+               (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %)) (Double/parseDouble (:price-per-liter %)))))
+               (map (juxt :name :size :price :price-per-liter :type :alkohol :apk :id))))
 
 (defn generate-html []
   (let [json-data (j/write-value-as-string data)
         template (slurp "template.html")
         html-content (clojure.string/replace template "{{ data_placeholder }}" json-data)] 
-    (with-open [writer (io/writer "output.html")]
+    (with-open [writer (io/writer "index.html")]
       (.write writer html-content))))
 
 

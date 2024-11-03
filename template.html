@@ -12,22 +12,21 @@
     <style>
         body { font-family: Arial, sans-serif; }
         h1 { text-align: center; }
-        table { width: 100%; margin-top: 20px; }
+        table { width: 100%; margin-top: 20px; }Data Table with JSON Data
     </style>
 </head>
 <body>
-    <h1>Data Table with JSON Data</h1>
+    <h1>Alko Price List</h1>
     <table id="data-table" class="display">
         <thead>
             <tr>
-                <th>Product ID</th>
                 <th>Product Name</th>
-                <th>Brand</th>
-                <th>Volume</th>
+                <th>Volume (L)</th>
                 <th>Price (€)</th>
+                <th>Price (€) Per Volume (L)</th>
                 <th>Category</th>
                 <th>Alcohol (%)</th>
-                <th>Some Metric</th>
+                <th>APK</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -39,16 +38,15 @@
             $('#data-table').DataTable({
                 data: tableData,
                 columns: [
-                    { title: "Product ID" },
-                    { title: "Product Name" },
-                    { title: "Brand" },
-                    { title: "Volume" },
+                    { title: "Product Name", render: function ( data, type, row) {return '<a href="https://www.alko.fi/tuotteet/'+row[7]+'" target="_blank">'+data+'</a>';}},
+                    { title: "Volume (L)" },
                     { title: "Price (€)" },
+                    { title: "Price (€) Per Volume (L)" },
                     { title: "Category" },
                     { title: "Alcohol (%)" },
-                    { title: "Some Metric" }
+                    { title: "APK" }
                 ],
-                pageLength: 10 
+                pageLength: 14, 
             });
         });
     </script>
