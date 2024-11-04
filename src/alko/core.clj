@@ -17,7 +17,7 @@
                (drop 4)
                (filter #(and (not= (:type %) "lahja- ja juomatarvikkeet")
                              (not= (:type %) "alkoholittomat")))
-               (map #(assoc % :size (s/replace (:size %) #" l" "")))
+               (map #(assoc % :size (s/replace (s/replace (:size %) #" l" "") #"," ".")))
                (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %))
                                       (Double/parseDouble (:price-per-liter %)))))
                (map (juxt :name :size :price :price-per-liter :type :alkohol :apk :id))))
@@ -37,4 +37,5 @@
 (comment
   (count data)
   (generate-html data)
-  data)
+  data
+  (take 10 data))
