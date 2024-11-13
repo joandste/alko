@@ -20,6 +20,7 @@
     <table id="data-table" class="display">
         <thead>
             <tr>
+                <th>Rank</th>
                 <th>Product Name</th>
                 <th>Volume (L)</th>
                 <th>Price (€)</th>
@@ -38,6 +39,7 @@
             $('#data-table').DataTable({
                 data: tableData,
                 columns: [
+                    { title: "Rank" },
                     { title: "Product Name", render: function ( data, type, row) {return '<a href="https://www.alko.fi/tuotteet/'+row[7]+'" target="_blank">'+data+'</a>';}},
                     { title: "Volume (L)" },
                     { title: "Price (€)" },

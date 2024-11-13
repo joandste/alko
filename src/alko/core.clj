@@ -20,7 +20,10 @@
                (map #(assoc % :size (s/replace (s/replace (:size %) #" l" "") #"," ".")))
                (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %))
                                       (Double/parseDouble (:price-per-liter %)))))
-               (map (juxt :name :size :price :price-per-liter :type :alkohol :apk :id))))
+               (sort-by :apk >)
+               (map #(assoc %2 :rank %1) (next (range)))
+               (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk :id))
+               ))
 
 (defn generate-html [input-data]
   (let [json-data (j/write-value-as-string input-data)
