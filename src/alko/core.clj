@@ -22,7 +22,8 @@
                                       (Double/parseDouble (:price-per-liter %)))))
                (sort-by :apk >)
                (map #(assoc %2 :rank %1) (next (range)))
-               (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk :id))
+               (map #(assoc % :name (str "<a href=\"https://www.alko.fi/tuotteet/" (:id %) "\" target=\"_blank\">" (:name %) "</a>")))
+               (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk))
                ))
 
 (defn generate-html [input-data]
