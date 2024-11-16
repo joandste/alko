@@ -5,6 +5,7 @@
             [clojure.string :as s]))
 
 
+;; TODO move to functions that read excel and then transducer that parses it using sequence?? maybe
 (def data (->> (d/load-workbook "alkon-hinnasto-tekstitiedostona.xlsx")
                (d/select-sheet "Alkon Hinnasto Tekstitiedostona")
                (d/select-columns {:A :id
@@ -26,6 +27,7 @@
                (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk))
                ))
 
+;; TODO dont use slurp to read template
 (defn generate-html [input-data]
   (let [json-data (j/write-value-as-string input-data)
         template (slurp "template.html")
@@ -33,8 +35,9 @@
     (with-open [writer (io/writer "index.html")]
       (.write writer html-content))))
 
-
+;; TODO create some usefull cli interface here
 (defn -main []
+  (generate-html data)
   (println "hello world"))
 
 
@@ -42,4 +45,8 @@
   (count data)
   (generate-html data)
   data
-  (take 10 data))
+  (take 10 data)
+  (nth data 100)
+  (last data)
+  (first data)
+  )
