@@ -19,15 +19,16 @@
                (filter #(and (not= (:type %) "lahja- ja juomatarvikkeet")
                              (not= (:type %) "alkoholittomat")))
                (map #(assoc % :size (s/replace (s/replace (:size %) #" l" "") #"," ".")))
-               (map #(assoc % :apk (if (not= (:price-per-liter %) nil)
-                                     (/ (Double/parseDouble (:alkohol %))
-                                        (Double/parseDouble (:price-per-liter %)))
-                                     0)))
+               (map #(if (= (:price-per-liter %) nil)
+                       (assoc % :price-per-liter (str (/ (Double/parseDouble (:price %))
+                                                         (Double/parseDouble (:size %))))) 
+                       %))
+               (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %))
+                                      (Double/parseDouble (:price-per-liter %)))))
                (sort-by :apk >)
                (map #(assoc %2 :rank %1) (next (range)))
                (map #(assoc % :name (str "<a href=\"https://www.alko.fi/tuotteet/" (:id %) "\" target=\"_blank\">" (:name %) "</a>")))
-               (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk))
-               ))
+               (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk))))
 
 ;; TODO dont use slurp to read template
 (defn generate-html [input-data]
