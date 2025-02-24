@@ -2,36 +2,43 @@
   (:require [dk.ative.docjure.spreadsheet :as d]
             [jsonista.core :as j]
             [clojure.java.io :as io]
-            [clojure.string :as s]))
+            [clojure.string :as str]))
 
 
-;; TODO move to functions that read excel and then transducer that parses it using sequence?? maybe
-(def data (->> (d/load-workbook "alkon-hinnasto-tekstitiedostona.xlsx")
-               (d/select-sheet "Alkon Hinnasto Tekstitiedostona")
-               (d/select-columns {:A :id
-                                  :B :name
-                                  :D :size
-                                  :E :price
-                                  :F :price-per-liter
-                                  :I :type
-                                  :V :alkohol})
-               (drop 4)
-               (filter #(and (not= (:type %) "lahja- ja juomatarvikkeet")
-                             (not= (:type %) "alkoholittomat")))
-               (map #(assoc % :size (s/replace (s/replace (:size %) #" l" "") #"," ".")))
-               (map #(if (= (:price-per-liter %) nil)
-                       (assoc % :price-per-liter (format "%.2f" (/ (Double/parseDouble (:price %))
-                                                         (Double/parseDouble (:size %))))) 
-                       %))
-               (map #(assoc % :apk (/ (Double/parseDouble (:alkohol %))
-                                      (Double/parseDouble (:price-per-liter %)))))
-               (sort-by :apk >)
-               (map #(assoc % :apk (format "%.4f" (:apk %))))
-               (map #(assoc %2 :rank %1) (next (range)))
-               (map #(assoc % :name (str "<a href=\"https://www.alko.fi/tuotteet/" (:id %) "\" target=\"_blank\">" (:name %) "</a>")))
-               (map (juxt :rank :name :size :price :price-per-liter :type :alkohol :apk))))
 
-;; TODO dont use slurp to read template
+(defn select-indices [coll indices]
+  (mapv #(nth coll %) indices))
+
+(defn alko-sort [coll] (->> coll
+                            (sort-by #(Double/parseDouble (nth % 7)) >)
+                            (mapv #(conj %2 (str %1)) (next (range)))))
+
+(def alko-seq (->> (d/load-workbook "alkon-hinnasto-tekstitiedostona.xlsx")
+                   (d/select-sheet "Alkon Hinnasto Tekstitiedostona")
+                   (d/row-seq)
+                   (drop 4)))
+
+(def cell-parser (comp
+                  (map d/cell-seq)
+                  (map #(mapv d/read-cell %))
+                  (map #(select-indices % [0 1 3 4 5 8 21]))
+                  (remove #(or (= (nth % 5) "lahja- ja juomatarvikkeet")
+                               (= (nth % 5) "alkoholittomat")))
+                  (map #(assoc % 2 (str/replace (nth % 2) #" l" "")))
+                  (map #(conj % (format "%.4f" (/ (Double/parseDouble (nth % 6))
+                                                  (Double/parseDouble (nth % 4))))))
+                  (map #(conj % (str "<a href=\"https://www.alko.fi/tuotteet/"
+                                     (nth % 0)
+                                     "\"
+                                      target=\"_blank\">"
+                                     (nth % 1)
+                                     "</a>"))) 
+                  ))
+
+(alko-sort (into '[] cell-parser alko-seq))
+
+
+;; TODO hiccup
 (defn generate-html [input-data]
   (let [json-data (j/write-value-as-string input-data)
         template (slurp "template.html")
@@ -40,17 +47,3 @@
       (.write writer html-content))))
 
 ;; TODO create some usefull cli interface here
-(defn -main []
-  (generate-html data)
-  (println "hello world"))
-
-
-(comment
-  (count data)
-  (generate-html data)
-  data
-  (take 10 data)
-  (nth data 100)
-  (last data)
-  (first data)
-  )
